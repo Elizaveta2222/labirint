@@ -1,0 +1,156 @@
+html {
+    scroll-behavior: smooth;
+}
+
+::before,
+::after {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+}
+
+h1,
+h2 {
+    font-family: "Vin";
+}
+
+h3,
+h4 {
+    font-family: "Vin";
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h5 {
+    font-weight: inherit;
+    font-size: inherit;
+}
+
+body {
+    margin: 0;
+}
+
+html,
+body {
+    line-height: 1;
+    font-size: 4px;
+    color: #F0F8FF;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+body._lock {
+    overflow: hidden;
+}
+
+/* ----------------------------------------*/
+
+.wrapper {
+    overflow: hidden;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+
+/* ----------------------------------------*/
+
+._container {
+    max-width: 1040px;
+    margin: 0px auto;
+    padding: 0px 60px;
+    box-sizing: content-box;
+}
+
+.ibg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+}
+/*--------------------------MAIN-------------*/
+
+.page {
+    flex: 1 1 auto;
+    max-width: 1040px;
+    margin: 100px auto;
+    padding: 0px 60px;
+    box-sizing: content-box;
+}
+
+.main-block {
+    position: relative;
+    display: flex;
+    align-items: center
+}
+
+#container {
+    margin-left: auto;
+    margin-right: auto;
+    font-family: "Vin";
+    font-size: medium;
+    color: #16232B;
+}
+
+#cells {
+    padding: 0 0 10px 0;
+}
+
+.cell {
+    margin: 5px;
+    border: solid white;
+    background-color: white; /* Green */
+    color: #4CAF50;
+    width: 10px;
+    height: 15px;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    font-family: Arial;
+}
+
+._block
+{
+    border: solid #4CAF50;
+    background-color: #bfd2bf; /* Green */
+    padding: 15px 32px;
+}
+
+#button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+#button:hover {
+    background-color: #459347; /* Green */
+}
+
+.size{
+    width: 30px;
+}
+
+@font-face {
+    font-family: "Vin";
+    src: url("../fonts/VinnytsiaSansReg.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
