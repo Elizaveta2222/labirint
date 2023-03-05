@@ -4,6 +4,7 @@ class PathSearch
     private array $matrix;
     private int $inf = PHP_INT_MAX;
     private Point $from, $to;
+
     function __construct($matrix, $from, $to)
     {
         $this->matrix = $matrix;
@@ -35,10 +36,22 @@ class PathSearch
         // метка начальной точки
         $d[$this->from->x][$this->from->y] = $this->matrix[$this->from->x][$this->from->y];
 
+        // массив пройденных точек
+        $final = array();
+
+        $this->getDestinations($pointsToGo, $d, $final);
+
+        if ($d[$this->to->x][$this->to->y] != $this->inf) // если в лабиринте существует проход от входа до выхода
+        {
+            return $this->getFinalPath($final, $d);
+        }
+        else throw new Exception("Пути от точки входа до выхода не существует");
+    }
+
+    private function getDestinations($pointsToGo, &$d, &$final)
+    {
         // текущая точка
         $y = $this->from;
-
-        // массив пройденных точек, заносим текущую точку в пройденные
         $final[] = $y;
 
         while (!empty($y) && ($y !== $this->to)) {
@@ -46,35 +59,34 @@ class PathSearch
 
             if (!empty($links)) {
                 $this->updateDestinations($d, $links, $y, $final);
-                $y = $this->getMin($d, $final); // получаем следующую текущую точку
+                $y = $this->getMinPath($d, $final); // получаем следующую текущую точку
                 if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
             }
             else break;
         }
+    }
 
-        if ($d[$this->to->x][$this->to->y] != $this->inf) // если в лабиринте существует проход от входа до выхода
+    private function getFinalPath($final, $d) : array
+    {
+        // текущей точкой становится выход
+        $y = $this->to;
+        // $path[] - массив с координатами пути
+        $path[] = $y;
+        while ($y != $this->from) // пока не прошли до входа
         {
-            // текущей точкой становится выход
-            $y = $this->to;
-            // $path[] - массив с координатами пути
-            $path[] = $y;
-            while ($y != $this->from) // пока не прошли до входа
+            $links = $this->getLinks($y, $final); // находим соседа текущей точки из пройденных
+            foreach ($links as $link)
             {
-                $links = $this->getLinks($y, $final); // находим соседа текущей точки из пройденных
-                foreach ($links as $link)
+                // если путь совпадает с кратчайшим, новое звено найдено
+                if ($d[$link->x][$link->y] + $this->matrix[$y->x][$y->y] == $d[$y->x][$y->y])
                 {
-                    // если путь совпадает с кратчайшим, новое звено найдено
-                    if ($d[$link->x][$link->y] + $this->matrix[$y->x][$y->y] == $d[$y->x][$y->y])
-                    {
-                        $y = $link;
-                        $path[] = $y;
-                        break;
-                    }
+                    $y = $link;
+                    $path[] = $y;
+                    break;
                 }
             }
-            return $path;
         }
-        else throw new Exception("Пути от точки входа до выхода не существует");
+        return $path;
     }
 
     private function getPointsToGo(): array
@@ -112,7 +124,7 @@ class PathSearch
         return $links;
     }
 
-    private function updateDestinations(&$d, $neighbors, $y, $final)
+    private function updateDestinations(&$d, $neighbors, $y, $final) // обновление значения минимального расстояния до точки
     {
         foreach ($neighbors as $neighbor) // сохраняем минимальные значения расстояния до точек, соседних с текущей
         {
@@ -124,7 +136,7 @@ class PathSearch
         }
     }
 
-    private function getMin($d, array $final) // поиск пути, кратчайшего из найденных для еще не пройденной точки
+    private function getMinPath($d, array $final) // поиск пути, кратчайшего из найденных для еще не пройденной точки
     {
         $minKey = null;
         $minValue = max($d); // если не найдется пути больше самого большого
