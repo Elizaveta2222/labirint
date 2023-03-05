@@ -1,14 +1,19 @@
 <?php
 session_start();
 unset($_SESSION["error"]);
-//$_SESSION["error"] = "";
+
 if (isset($_POST["cells"]))
 {
-    $_SESSION["cells"] = $_POST["cells"];
+    $cells = $_POST["cells"];
+    // замена пустых значений на ноль
+    for ($i = 0; $i < count($cells); $i++)
+        for ($j = 0; $j < count($cells); $j++)
+            if ($cells[$i][$j] == "")
+            {
+                $cells[$i][$j] = 0;
+            }
+    $_SESSION["cells"] = $cells;
 }
-
-$cells = $_SESSION["cells"];
-$path = array();
 
 if(isset($_POST["button"]))
 {
@@ -20,14 +25,12 @@ if(isset($_POST["button"]))
         try {
             $from = new Point($_POST["fromX"], $_POST["fromY"]);
             $to = new Point($_POST["toX"], $_POST["toY"]);
+            $search = new PathSearch($_SESSION["cells"], $from, $to);
+            $path = $search->getShortestPath();
         }
         catch (TypeError $ex)
         {
             $_SESSION["error"] = "Точки входа не могут иметь пустые координаты";
-        }
-        try {
-            $search = new PathSearch($cells, $from, $to);
-            $path = $search->getShortestPath();
         }
         catch(Exception $ex)
         {

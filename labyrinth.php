@@ -59,14 +59,18 @@ include 'handler/getMatrix.php';
                         </div>
                         <p>
                             <?php
+                            // вывод ошибки, если есть
                             if (isset($_SESSION["error"]))
                                 echo $_SESSION["error"];
-                            elseif(!empty($path))
-                                echo "Кратчайший путь: ";
-                            while (!empty($path))
+                            // если уже был запрошен и получен, выводится путь
+                            elseif(isset($path))
                             {
-                                $point = array_pop($path);
-                                echo "($point->x, $point->y); ";
+                                echo "Кратчайший путь: ";
+                                while (!empty($path))
+                                {
+                                    $point = array_pop($path);
+                                    echo "($point->x, $point->y); ";
+                                }
                             }
                             ?>
                         </p>
