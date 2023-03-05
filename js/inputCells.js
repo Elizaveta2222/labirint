@@ -16,9 +16,12 @@ function addInput()
         for (let j = 0; j < sizeY; j++) {
             let input = document.createElement('input');
             input.type = 'number';
-            input.name = 'cell' + i + j;
+            input.name = 'cells['+ i + '][]';
             input.style.width = '30px';
             input.value = '0';
+            input.min = '0';
+            input.max = '9';
+            input.onchange = function () { return (input.value == null)? 0:input.value}
             let cell = document.createElement('th');
             cell.append(input);
             row.appendChild(cell);
