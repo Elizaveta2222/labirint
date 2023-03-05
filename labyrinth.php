@@ -59,6 +59,7 @@ include 'handler/getMatrix.php';
                         </div>
                         <p>
                             <?php
+                            echo $_SESSION["error"];
                             while (!empty($path))
                             {
                                 echo "Кратчайший путь: ";

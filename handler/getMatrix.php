@@ -1,5 +1,6 @@
 <?php
 session_start();
+$_SESSION["error"] = "";
 if (isset($_POST["cells"]))
 {
     $_SESSION["cells"] = $_POST["cells"];
@@ -22,13 +23,16 @@ if(isset($_POST["button"]))
     else
         $to = new Point(count($cells)-1, count($cells[0])-1);
 
-    $search = new PathSearch($cells, $from, $to);
-
-    $path = $search->getShortestPath();
-
-    $gotAnswer = false;
-
-    if(!empty($path)) $gotAnswer = true;
+    $error = "";
+    try
+    {
+        $search = new PathSearch($cells, $from, $to);
+        $path = $search->getShortestPath();
+    }
+    catch(Exception $ex)
+    {
+        $_SESSION["error"] = $ex -> getMessage();
+    }
 }
 
 

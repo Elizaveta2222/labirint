@@ -14,11 +14,61 @@ class PathSearch
     function getShortestPath(): array
     {
         // точки, по которым можно пройти
+        $pointsToGo = $this->getPointsToGo();
+        // ошибка, если пользователь не заполнил лабиринт
+        if (empty($pointsToGo)) throw new Exception("Лабиринт не заполнен");
+
+        //массив меток кратчайших расстояний заполняется "бесконечностями"
+        foreach ($pointsToGo as $point)
+        {
+            $d[$point->x][$point->y] = $this->inf;
+        }
+        // метка начальной точки
+        $d[$this->from->x][$this->from->y] = $this->matrix[$this->from->x][$this->from->y];
+
+        // текущая точка
+        $y = $this->from;
+
+        //массив пройденных точек, заносим текущую точку в пройденные
+        $final[] = $y;
+
+        while (!empty($y)) {
+            $neighbors = $this->getLinks($y, $pointsToGo);
+            if (!empty($neighbors)) {
+                $this->UpdateDestinations($d, $pointsToGo, $neighbors, $y, $final);
+                $y = $this->getMin($d, $final); // получаем следующую текущую точку
+                if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
+            }
+        }
+
+        if (isset($d[$this->to->x][$this->to->y])) // если в лабиринте существует проход от входа до выхода
+        {
+            // текущей точкой становится выход
+            $y = $this->to;
+            // $path[] - массив с координатами пути
+            $path[] = $y;
+            while ($y != $this->from) // пока не прошли до входа
+            {
+                $links = $this->getBackLinks($y, $final); // находим соседа текущей точки из пройденных
+                foreach ($links as $link)
+                {
+                    // если путь совпадает с кратчайшим, новое звено найдено
+                    if ($d[$link->x][$link->y] + $pointsToGo[$y->x][$y->y] == $d[$y->x][$y->y])
+                    {
+                        $y = $link;
+                        $path[] = $y;
+                        break;
+                    }
+                }
+            }
+            return $path;
+        }
+        else throw new Exception("Пути от точки входа до выхода не существует");
+    }
+
+    private function getPointsToGo(): array
+    {
         $pointsToGo = array();
-        //массив меток кратчайших расстояний
-        $d = array();
-        //массив пройденных точек
-        $final = array();
         //ширина и высота поля
         $countX = count($this->matrix);
         $countY = count($this->matrix[0]);
@@ -30,51 +80,11 @@ class PathSearch
             {
                 if ($this->matrix[$i][$j] > 0)
                 {
-                    $d[$i][$j] = $this->inf; //заполняем массив меток "бесконечностями"
-                    $pointsToGo[$i][$j] = $this->matrix[$i][$j]; // получаем все точки, по которым можно пройти
+                    $pointsToGo[] = new Point($i, $j); // получаем все точки, по которым можно пройти
                 }
             }
         }
-        if (empty($pointsToGo)) return array();
-
-        // метка начальной точки
-        $d[$this->from->x][$this->from->y] = $this->matrix[$this->from->x][$this->from->y];
-        // текущая точка
-        $y = $this->from;
-        // заносим текущую точку в пройденные
-        $final[] = $y;
-
-        while (!empty($y))
-        {
-            $neighbors = $this->getLinks($y, $pointsToGo);
-            if (!empty($neighbors))
-            {
-                $this->UpdateDestinations($d, $pointsToGo, $neighbors, $y, $final);
-                $y = $this->getMin($d, $final); // получаем следующую текущую точку
-                if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
-            }
-        }
-        $y = $this->to;
-        $path[] = $y;
-
-        if (isset($d[$this->to->x][$this->to->y]))
-        {
-            while ($y != $this->from)
-            {
-                $links = $this->getBackLinks($y, $final);
-                foreach ($links as $link)
-                {
-                    if ($d[$link->x][$link->y] + $pointsToGo[$y->x][$y->y] == $d[$y->x][$y->y])
-                    {
-                        $y = $link;
-                        $path[] = $y;
-                        break;
-                    }
-                }
-            }
-            return $path;
-        }
-        else return array();
+        return $pointsToGo;
     }
 
     private function getBackLinks($y, $pointsToGo) : array
@@ -117,10 +127,10 @@ class PathSearch
         }
     }
 
-    private function getMin($d, array $final)
+    private function getMin($d, array $final) // поиск пути, кратчайшего из найденных для еще не пройденной точки
     {
         $minKey = null;
-        $minValue = max($d);
+        $minValue = max($d); // если не найдется пути больше самого большого
         foreach($d as $keyX => $valueX)
         {
             foreach($valueX as $keyY => $valueY)
@@ -128,7 +138,6 @@ class PathSearch
                 $key = new Point($keyX, $keyY);
                 if (($minValue > $valueY) && (!in_array($key, $final)))
                 {
-                    //(!in_array($key, $final))
                     $minValue = $valueY;
                     $minKey = new Point($keyX, $keyY);
                 }
@@ -136,5 +145,4 @@ class PathSearch
         }
         return $minKey;
     }
-
 }
