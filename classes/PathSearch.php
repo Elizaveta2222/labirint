@@ -19,6 +19,7 @@ class PathSearch
     {
         // точки, по которым можно пройти
         $pointsToGo = $this->getPointsToGo();
+
         // ошибка, если пользователь не заполнил лабиринт
         if (empty($pointsToGo)) throw new Exception("Лабиринт не заполнен");
 
@@ -40,16 +41,18 @@ class PathSearch
         // массив пройденных точек, заносим текущую точку в пройденные
         $final[] = $y;
 
-        while (!empty($y)) {
+        while (!empty($y) && ($y !== $this->to)) {
             $links = $this->getLinks($y, $pointsToGo);
+
             if (!empty($links)) {
-                $this->UpdateDestinations($d, $links, $y, $final);
+                $this->updateDestinations($d, $links, $y, $final);
                 $y = $this->getMin($d, $final); // получаем следующую текущую точку
                 if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
             }
+            else break;
         }
 
-        if (isset($d[$this->to->x][$this->to->y])) // если в лабиринте существует проход от входа до выхода
+        if ($d[$this->to->x][$this->to->y] != $this->inf) // если в лабиринте существует проход от входа до выхода
         {
             // текущей точкой становится выход
             $y = $this->to;
@@ -109,13 +112,13 @@ class PathSearch
         return $links;
     }
 
-    private function UpdateDestinations(&$d, $neighbors, $y, $final)
+    private function updateDestinations(&$d, $neighbors, $y, $final)
     {
         foreach ($neighbors as $neighbor) // сохраняем минимальные значения расстояния до точек, соседних с текущей
         {
             if (!in_array($neighbor, $final)) // если точка не пройдена
             {
-                $temp = $d[$y->x][$y->y]+$this->matrix[$neighbor->x][$neighbor->y];
+                $temp = (int)($d[$y->x][$y->y])+(int)($this->matrix[$neighbor->x][$neighbor->y]);
                 if ($temp < $d[$neighbor->x][$neighbor->y]) $d[$neighbor->x][$neighbor->y] = $temp;
             }
         }
