@@ -35,7 +35,10 @@ include 'handler/getMatrix.php';
                                 echo "<td class='cell'>$i</td>";
                                 foreach ($row as $cell)
                                 {
-                                    echo "<td class='cell _block'>$cell</td>";
+                                    echo "<td class='cell _block'>";
+                                    if ($cell != "") echo $cell;
+                                    else echo "0";
+                                    echo "</td>";
                                 }
                                 echo "</tr>";
                                 $i++;

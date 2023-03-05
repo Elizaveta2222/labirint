@@ -4,15 +4,7 @@ unset($_SESSION["error"]);
 
 if (isset($_POST["cells"]))
 {
-    $cells = $_POST["cells"];
-    // замена пустых значений на ноль
-    for ($i = 0; $i < count($cells); $i++)
-        for ($j = 0; $j < count($cells); $j++)
-            if ($cells[$i][$j] == "")
-            {
-                $cells[$i][$j] = 0;
-            }
-    $_SESSION["cells"] = $cells;
+    $_SESSION["cells"] = $_POST["cells"];
 }
 
 if(isset($_POST["button"]))
