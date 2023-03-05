@@ -1,9 +1,9 @@
 <?php
 class PathSearch
 {
-    public array $matrix;
-    public int $inf = PHP_INT_MAX;
-    public Point $from, $to;
+    private array $matrix;
+    private int $inf = PHP_INT_MAX;
+    private Point $from, $to;
     function __construct($matrix, $from, $to)
     {
         $this->matrix = $matrix;
@@ -11,7 +11,7 @@ class PathSearch
         $this->to = $to;
     }
 
-    function getShortestPath()
+    function getShortestPath(): array
     {
         // точки, по которым можно пройти
         $pointsToGo = array();
@@ -24,9 +24,9 @@ class PathSearch
         $countY = count($this->matrix[0]);
 
         //проходим по всему полю
-        for ($i = 1; $i < $countX; $i++)
+        for ($i = 0; $i < $countX; $i++)
         {
-            for ($j = 1; $j < $countY; $j++)
+            for ($j = 0; $j < $countY; $j++)
             {
                 if ($this->matrix[$i][$j] > 0)
                 {
@@ -35,6 +35,8 @@ class PathSearch
                 }
             }
         }
+        if (empty($pointsToGo)) return array();
+
         // метка начальной точки
         $d[$this->from->x][$this->from->y] = $this->matrix[$this->from->x][$this->from->y];
         // текущая точка
@@ -48,14 +50,48 @@ class PathSearch
             if (!empty($neighbors))
             {
                 $this->UpdateDestinations($d, $pointsToGo, $neighbors, $y, $final);
-                $y = $this->getMin($d, $y); // получаем следующую текущую точку
+                $y = $this->getMin($d, $final); // получаем следующую текущую точку
                 if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
             }
         }
+        $y = $this->to;
+        $path[] = $y;
 
+        if (isset($d[$this->to->x][$this->to->y]))
+        {
+            while ($y != $this->from)
+            {
+                $links = $this->getBackLinks($y, $final);
+                foreach ($links as $link)
+                {
+                    if ($d[$link->x][$link->y] + $pointsToGo[$y->x][$y->y] == $d[$y->x][$y->y])
+                    {
+                        $y = $link;
+                        $path[] = $y;
+                        break;
+                    }
+                }
+            }
+            return $path;
+        }
+        else return array();
     }
 
-    function getLinks($y, $pointsToGo) : array
+    private function getBackLinks($y, $pointsToGo) : array
+    {
+        $links = array();
+        $keyL = new Point($y->x-1, $y->y);
+        $keyR = new Point($y->x+1, $y->y);
+        $keyD = new Point($y->x, $y->y-1);
+        $keyU = new Point($y->x, $y->y+1);
+        if (in_array($keyL, $pointsToGo)) $links[] = $keyL;
+        if (in_array($keyR, $pointsToGo)) $links[] = $keyR;
+        if (in_array($keyD, $pointsToGo)) $links[] = $keyD;
+        if (in_array($keyU, $pointsToGo)) $links[] = $keyU;
+        return $links;
+    }
+
+    private function getLinks($y, $pointsToGo) : array
     {
         $neighbors = array();
         if (array_key_exists($y->x-1, $pointsToGo)) // проверка, существует ли точка
@@ -69,7 +105,7 @@ class PathSearch
         return $neighbors;
     }
 
-    function UpdateDestinations(&$d, $pointsToGo, $neighbors, $y, $final)
+    private function UpdateDestinations(&$d, $pointsToGo, $neighbors, $y, $final)
     {
         foreach ($neighbors as $neighbor) // сохраняем минимальные значения расстояния до точек, соседних с текущей
         {
@@ -80,7 +116,8 @@ class PathSearch
             }
         }
     }
-    function getMin($d, $final)
+
+    private function getMin($d, array $final)
     {
         $minKey = null;
         $minValue = max($d);
@@ -88,8 +125,10 @@ class PathSearch
         {
             foreach($valueX as $keyY => $valueY)
             {
-                if (($minValue > $valueY) && (!in_array(new Point($valueX, $valueY), $final)))
+                $key = new Point($keyX, $keyY);
+                if (($minValue > $valueY) && (!in_array($key, $final)))
                 {
+                    //(!in_array($key, $final))
                     $minValue = $valueY;
                     $minKey = new Point($keyX, $keyY);
                 }
@@ -97,4 +136,5 @@ class PathSearch
         }
         return $minKey;
     }
+
 }
