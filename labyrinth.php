@@ -51,18 +51,20 @@ include 'handler/getMatrix.php';
                                 <input type='number' name='fromY' class="from" value='0' min="0"/>
                             </p>
                             <p>Выберите координаты выхода:
-                                <input type='number' name='toX' class="to" value='<?=count($cells)-1?>' min="1""/>
+                                <input type='number' name='toX' class="to" value='<?=count($cells)-1?>' min="0""/>
                                 .
-                                <input type='number' name='toY' class="to" value='<?=count($cells[0])-1?>' min="1"/>
+                                <input type='number' name='toY' class="to" value='<?=count($cells[0])-1?>' min="0"/>
                             </p>
                             <input type="submit" name="button" id="button" value="Вычислить"">
                         </div>
                         <p>
                             <?php
-                            echo $_SESSION["error"];
+                            if (isset($_SESSION["error"]))
+                                echo $_SESSION["error"];
+                            elseif(!empty($path))
+                                echo "Кратчайший путь: ";
                             while (!empty($path))
                             {
-                                echo "Кратчайший путь: ";
                                 $point = array_pop($path);
                                 echo "($point->x, $point->y); ";
                             }

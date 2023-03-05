@@ -7,7 +7,11 @@ class PathSearch
     function __construct($matrix, $from, $to)
     {
         $this->matrix = $matrix;
+        if (!($from instanceof Point) || ($from->x > count($matrix)) || ($from->y > count($matrix[0])))
+            throw new Exception("Точка входа задана некорректно");
         $this->from = $from;
+        if (!($to instanceof Point) || ($to->x >= count($matrix)) || ($to->y >= count($matrix[0])))
+            throw new Exception("Точка выхода задана некорректно");
         $this->to = $to;
     }
 
@@ -37,9 +41,9 @@ class PathSearch
         $final[] = $y;
 
         while (!empty($y)) {
-            $neighbors = $this->getLinks($y, $pointsToGo);
-            if (!empty($neighbors)) {
-                $this->UpdateDestinations($d, $pointsToGo, $neighbors, $y, $final);
+            $links = $this->getLinks($y, $pointsToGo);
+            if (!empty($links)) {
+                $this->UpdateDestinations($d, $links, $y, $final);
                 $y = $this->getMin($d, $final); // получаем следующую текущую точку
                 if (!empty($y)) $final[] = $y; // если такая есть, добавляем в рассмотренные
             }
@@ -53,11 +57,11 @@ class PathSearch
             $path[] = $y;
             while ($y != $this->from) // пока не прошли до входа
             {
-                $links = $this->getBackLinks($y, $final); // находим соседа текущей точки из пройденных
+                $links = $this->getLinks($y, $final); // находим соседа текущей точки из пройденных
                 foreach ($links as $link)
                 {
                     // если путь совпадает с кратчайшим, новое звено найдено
-                    if ($d[$link->x][$link->y] + $pointsToGo[$y->x][$y->y] == $d[$y->x][$y->y])
+                    if ($d[$link->x][$link->y] + $this->matrix[$y->x][$y->y] == $d[$y->x][$y->y])
                     {
                         $y = $link;
                         $path[] = $y;
@@ -91,41 +95,27 @@ class PathSearch
         return $pointsToGo;
     }
 
-    private function getBackLinks($y, $pointsToGo) : array
+    private function getLinks($y, $points) : array
     {
         $links = array();
         $keyL = new Point($y->x-1, $y->y);
         $keyR = new Point($y->x+1, $y->y);
         $keyD = new Point($y->x, $y->y-1);
         $keyU = new Point($y->x, $y->y+1);
-        if (in_array($keyL, $pointsToGo)) $links[] = $keyL;
-        if (in_array($keyR, $pointsToGo)) $links[] = $keyR;
-        if (in_array($keyD, $pointsToGo)) $links[] = $keyD;
-        if (in_array($keyU, $pointsToGo)) $links[] = $keyU;
+        if (in_array($keyL, $points)) $links[] = $keyL;
+        if (in_array($keyR, $points)) $links[] = $keyR;
+        if (in_array($keyD, $points)) $links[] = $keyD;
+        if (in_array($keyU, $points)) $links[] = $keyU;
         return $links;
     }
 
-    private function getLinks($y, $pointsToGo) : array
-    {
-        $neighbors = array();
-        if (array_key_exists($y->x-1, $pointsToGo)) // проверка, существует ли точка
-            $neighbors[] = new Point($y->x-1, $y->y);
-        if (array_key_exists($y->x+1, $pointsToGo))
-            $neighbors[] = new Point($y->x+1, $y->y);
-        if (array_key_exists($y->y-1, $pointsToGo[$y->x]))
-            $neighbors[] = new Point($y->x, $y->y-1);
-        if (array_key_exists($y->y+1, $pointsToGo[$y->x]))
-            $neighbors[] = new Point($y->x, $y->y+1);
-        return $neighbors;
-    }
-
-    private function UpdateDestinations(&$d, $pointsToGo, $neighbors, $y, $final)
+    private function UpdateDestinations(&$d, $neighbors, $y, $final)
     {
         foreach ($neighbors as $neighbor) // сохраняем минимальные значения расстояния до точек, соседних с текущей
         {
             if (!in_array($neighbor, $final)) // если точка не пройдена
             {
-                $temp = $d[$y->x][$y->y]+$pointsToGo[$neighbor->x][$neighbor->y];
+                $temp = $d[$y->x][$y->y]+$this->matrix[$neighbor->x][$neighbor->y];
                 if ($temp < $d[$neighbor->x][$neighbor->y]) $d[$neighbor->x][$neighbor->y] = $temp;
             }
         }
