@@ -18,7 +18,11 @@ class PathSearch
         // ошибка, если пользователь не заполнил лабиринт
         if (empty($pointsToGo)) throw new Exception("Лабиринт не заполнен");
 
-        //массив меток кратчайших расстояний заполняется "бесконечностями"
+        // ошибка, если пользователь выбрал нулевые точки
+        if (($this->matrix[$this->from->x][$this->from->y] == 0) || ($this->matrix[$this->to->x][$this->to->y] == 0))
+            throw new Exception("Нельзя идти по точкам с нулевым значением");
+
+        // массив меток кратчайших расстояний заполняется "бесконечностями"
         foreach ($pointsToGo as $point)
         {
             $d[$point->x][$point->y] = $this->inf;
@@ -29,7 +33,7 @@ class PathSearch
         // текущая точка
         $y = $this->from;
 
-        //массив пройденных точек, заносим текущую точку в пройденные
+        // массив пройденных точек, заносим текущую точку в пройденные
         $final[] = $y;
 
         while (!empty($y)) {
@@ -69,11 +73,11 @@ class PathSearch
     private function getPointsToGo(): array
     {
         $pointsToGo = array();
-        //ширина и высота поля
+        // ширина и высота поля
         $countX = count($this->matrix);
         $countY = count($this->matrix[0]);
 
-        //проходим по всему полю
+        // проходим по всему полю
         for ($i = 0; $i < $countX; $i++)
         {
             for ($j = 0; $j < $countY; $j++)
